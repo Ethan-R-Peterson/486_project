@@ -1,0 +1,27 @@
+Screentime and Productivity Analysis Pipeline - Results
+============================================================
+
+Dataset Shapes:
+- social_media: (30000, 19)
+- productivity_tracker: (1800, 10)
+- smartphone_usage: (50, 6)
+
+Processed Features Shape: (27635, 14)
+
+Regression Results (Productivity):
+See console output for detailed metrics.
+
+Classification Results (High-Risk Usage):
+See console output for detailed reports.
+
+Feature Importance (Random Forest - Classification):
+late_usage: 0.2205
+social_time: 0.1643
+screen_z: 0.1548
+screen_sleep_ratio: 0.0828
+work_hours: 0.0592
+notif_work_ratio: 0.0584
+sleep: 0.0569
+age: 0.0492
+notif_z: 0.0382
+notifications: 0.0377

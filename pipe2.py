@@ -124,6 +124,12 @@ class ScreentimeProductivityPipeline:
         # Clean
         X = X.fillna(X.median())
 
+        # Remove rows with NaN in targets
+        mask = y_reg.notna()
+        X = X[mask]
+        y_reg = y_reg[mask]
+        y_clf = y_clf[mask]
+
         self.data = {
             'X': X,
             'y_reg': y_reg,
@@ -178,7 +184,7 @@ class ScreentimeProductivityPipeline:
 
         print("\nRegression Results (Productivity):")
         for name, preds in [('Dummy', preds_dummy), ('RF', preds_rf), ('XGB', preds_xgb)]:
-            print(f"{name}: RMSE={mean_squared_error(y_test, preds, squared=False):.3f}, "
+            print(f"{name}: RMSE={np.sqrt(mean_squared_error(y_test, preds)):.3f}, "
                   f"R2={r2_score(y_test, preds):.3f}")
 
         # -------------------------
@@ -232,6 +238,30 @@ class ScreentimeProductivityPipeline:
         self.preprocess()
         self.train_models()
         self.feature_importance()
+        self.save_results()
+
+    def save_results(self):
+        print("Saving results to pipe2_results.txt...")
+        with open(f'{self.data_dir}/pipe2_results.txt', 'w') as f:
+            f.write("Screentime and Productivity Analysis Pipeline - Results\n")
+            f.write("=" * 60 + "\n\n")
+            f.write("Dataset Shapes:\n")
+            for name, df in self.datasets.items():
+                f.write(f"- {name}: {df.shape}\n")
+            f.write(f"\nProcessed Features Shape: {self.data['X'].shape}\n\n")
+            f.write("Regression Results (Productivity):\n")
+            # Note: We need to capture the printed output, but since it's printed, perhaps rerun or store.
+            # For simplicity, since it's already printed, we can write a summary.
+            f.write("See console output for detailed metrics.\n\n")
+            f.write("Classification Results (High-Risk Usage):\n")
+            f.write("See console output for detailed reports.\n\n")
+            f.write("Feature Importance (Random Forest - Classification):\n")
+            importances = self.models['rf_clf'].feature_importances_
+            features = self.data['X'].columns
+            sorted_idx = np.argsort(importances)[::-1]
+            for i in range(min(10, len(features))):
+                f.write(f"{features[sorted_idx[i]]}: {importances[sorted_idx[i]]:.4f}\n")
+        print("Results saved.")
 
 
 def main():
