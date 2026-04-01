@@ -1,0 +1,246 @@
+
+================================================================
+  STEP 1: Loading Datasets
+================================================================
+  tw                   →  1,000 rows × 31 cols
+  sm                   → 30,000 rows × 19 cols
+  pt                   →  1,800 rows × 10 cols
+  su                   →     50 rows ×  6 cols
+
+================================================================
+  STEP 2: Exploratory Data Analysis
+================================================================
+
+Target: Addiction Level distribution
+  Level 0:  180  ( 18.0%)
+  Level 1:   60  (  6.0%)
+  Level 2:  248  ( 24.8%)
+  Level 3:  159  ( 15.9%)
+  Level 4:   36  (  3.6%)
+  Level 5:  228  ( 22.8%)
+  Level 6:   34  (  3.4%)
+  Level 7:   55  (  5.5%)
+
+Target: ProductivityLoss distribution
+  Loss 1:   55  (  5.5%)
+  Loss 2:   34  (  3.4%)
+  Loss 3:  228  ( 22.8%)
+  Loss 4:   36  (  3.6%)
+  Loss 5:  158  ( 15.8%)
+  Loss 6:  247  ( 24.7%)
+  Loss 7:   60  (  6.0%)
+  Loss 8:  145  ( 14.5%)
+  Loss 9:   37  (  3.7%)
+
+⚠  Leakage check:
+   Addiction Level == 10 − Self Control   (exact)
+   ProductivityLoss == 10 − Satisfaction  (exact)
+   → Both columns EXCLUDED from features.
+
+
+================================================================
+  STEP 3: Feature Engineering
+================================================================
+  Categorical columns to encode: ['Gender', 'Location', 'Debt', 'Owns Property', 'Profession', 'Demographics', 'Platform', 'Video Category', 'Frequency', 'Watch Reason', 'DeviceType', 'OS', 'CurrentActivity', 'ConnectionType']
+  Final feature matrix: (1000, 37)
+  Features: ['Age', 'Gender', 'Location', 'Income', 'Debt', 'Owns Property', 'Profession', 'Demographics', 'Platform', 'Total Time Spent', 'Number of Sessions', 'Video Category', 'Video Length', 'Engagement', 'Importance Score', 'Time Spent On Video', 'Number of Videos Watched', 'Scroll Rate', 'Frequency', 'Watch Reason', 'DeviceType', 'OS', 'CurrentActivity', 'ConnectionType', 'watch_hour', 'is_late_night', 'time_per_session', 'time_per_video', 'engagement_rate', 'scroll_per_session', 'video_completion', 'screen_z_pop', 'occ_avg_productivity', 'occ_avg_screentime', 'social_time_z_sm', 'pop_stress_ref', 'pop_sleep_ref']
+
+================================================================
+  STEP 4: Preprocessing
+================================================================
+  Scaled feature matrix: (1000, 37)
+
+================================================================
+  STEP 5A: Addiction Level — Classification
+================================================================
+
+  Train size: 800  |  Test size: 200
+
+  ── Baseline (most-frequent) ──
+     Accuracy : 0.2500
+     Macro-F1 : 0.0500
+
+  ── Baseline (stratified) ──
+     Accuracy : 0.1900
+     Macro-F1 : 0.1081
+
+  ── Logistic Regression ──
+     Accuracy : 0.4750
+     Macro-F1 : 0.3002
+
+              precision    recall  f1-score   support
+
+           0       0.50      0.42      0.45        36
+           1       0.25      0.08      0.12        12
+           2       0.51      0.70      0.59        50
+           3       0.45      0.47      0.46        32
+           4       0.00      0.00      0.00         7
+           5       0.59      0.60      0.59        45
+           6       0.00      0.00      0.00         7
+           7       0.17      0.18      0.17        11
+
+    accuracy                           0.47       200
+   macro avg       0.31      0.31      0.30       200
+weighted avg       0.45      0.47      0.45       200
+
+
+  ── Random Forest ──
+     Accuracy : 0.5750
+     Macro-F1 : 0.4174
+
+              precision    recall  f1-score   support
+
+           0       0.54      0.36      0.43        36
+           1       0.00      0.00      0.00        12
+           2       0.61      0.80      0.69        50
+           3       0.49      0.75      0.59        32
+           4       0.00      0.00      0.00         7
+           5       0.72      0.64      0.68        45
+           6       0.50      0.43      0.46         7
+           7       0.43      0.55      0.48        11
+
+    accuracy                           0.57       200
+   macro avg       0.41      0.44      0.42       200
+weighted avg       0.53      0.57      0.54       200
+
+
+  ── Gradient Boosting ──
+     Accuracy : 0.5500
+     Macro-F1 : 0.4169
+
+              precision    recall  f1-score   support
+
+           0       0.48      0.39      0.43        36
+           1       0.00      0.00      0.00        12
+           2       0.55      0.72      0.63        50
+           3       0.61      0.72      0.66        32
+           4       0.00      0.00      0.00         7
+           5       0.71      0.60      0.65        45
+           6       0.40      0.57      0.47         7
+           7       0.46      0.55      0.50        11
+
+    accuracy                           0.55       200
+   macro avg       0.40      0.44      0.42       200
+weighted avg       0.52      0.55      0.53       200
+
+
+  ★ Best model (Addiction): Random Forest  (Macro-F1 = 0.4174)
+
+  5-fold stratified CV on best model:
+     CV Accuracy : 0.5810 ± 0.0231
+     CV Macro-F1 : 0.4147 ± 0.0190
+
+================================================================
+  STEP 5B: Productivity Loss — Classification
+================================================================
+
+  Train size: 800  |  Test size: 200
+
+  ── Baseline (most-frequent) ──
+     Accuracy : 0.2450
+     Macro-F1 : 0.0437
+
+  ── Baseline (stratified) ──
+     Accuracy : 0.1450
+     Macro-F1 : 0.0920
+
+  ── Logistic Regression ──
+     Accuracy : 0.4750
+     Macro-F1 : 0.2938
+
+              precision    recall  f1-score   support
+
+           0       0.11      0.18      0.13        11
+           1       0.14      0.14      0.14         7
+           2       0.66      0.54      0.60        46
+           3       0.00      0.00      0.00         7
+           4       0.50      0.59      0.54        32
+           5       0.53      0.71      0.61        49
+           6       0.00      0.00      0.00        12
+           7       0.43      0.41      0.42        29
+           8       0.33      0.14      0.20         7
+
+    accuracy                           0.47       200
+   macro avg       0.30      0.30      0.29       200
+weighted avg       0.45      0.47      0.45       200
+
+
+  ── Random Forest ──
+     Accuracy : 0.5900
+     Macro-F1 : 0.3666
+
+              precision    recall  f1-score   support
+
+           0       0.35      0.64      0.45        11
+           1       0.33      0.29      0.31         7
+           2       0.84      0.70      0.76        46
+           3       0.00      0.00      0.00         7
+           4       0.53      0.84      0.65        32
+           5       0.62      0.80      0.70        49
+           6       0.00      0.00      0.00        12
+           7       0.50      0.38      0.43        29
+           8       0.00      0.00      0.00         7
+
+    accuracy                           0.59       200
+   macro avg       0.35      0.40      0.37       200
+weighted avg       0.53      0.59      0.55       200
+
+
+  ── Gradient Boosting ──
+     Accuracy : 0.5850
+     Macro-F1 : 0.4513
+
+              precision    recall  f1-score   support
+
+           0       0.36      0.45      0.40        11
+           1       0.36      0.57      0.44         7
+           2       0.82      0.67      0.74        46
+           3       0.00      0.00      0.00         7
+           4       0.56      0.75      0.64        32
+           5       0.62      0.73      0.67        49
+           6       0.33      0.08      0.13        12
+           7       0.52      0.41      0.46        29
+           8       0.57      0.57      0.57         7
+
+    accuracy                           0.58       200
+   macro avg       0.46      0.47      0.45       200
+weighted avg       0.58      0.58      0.57       200
+
+
+  ★ Best model (Productivity Loss): Gradient Boosting  (Macro-F1 = 0.4513)
+
+  5-fold stratified CV on best model:
+     CV Accuracy : 0.5620 ± 0.0260
+     CV Macro-F1 : 0.4434 ± 0.0484
+
+================================================================
+  STEP 6: Feature Importance
+================================================================
+
+  Top 10 features — Addiction Level:
+     1. watch_hour                     0.1681
+     2. Frequency                      0.0899
+     3. Engagement                     0.0375
+     4. Income                         0.0363
+     5. Scroll Rate                    0.0351
+     6. video_completion               0.0345
+     7. Number of Videos Watched       0.0338
+     8. Age                            0.0335
+     9. engagement_rate                0.0333
+    10. time_per_session               0.0327
+
+  Top 10 features — Productivity Loss:
+     1. watch_hour                     0.3343
+     2. Frequency                      0.0938
+     3. Engagement                     0.0517
+     4. Income                         0.0425
+     5. time_per_video                 0.0371
+     6. video_completion               0.0338
+     7. Number of Videos Watched       0.0338
+     8. scroll_per_session             0.0334
+     9. time_per_session               0.0306
+    10. Age                            0.0298
+
+================================================================
+  STEP 7: Saving Results
+================================================================
